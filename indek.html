@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi Sekolah Modern</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i data-lucide="graduation-cap"></i>
+                <h2>E-Absensi</h2>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="switchTab('dashboard')">
+                    <i data-lucide="layout-dashboard"></i> Dashboard
+                </button>
+                <button class="nav-item" onclick="switchTab('absensi')">
+                    <i data-lucide="user-check"></i> Input Absensi
+                </button>
+                <button class="nav-item" onclick="switchTab('rekap')">
+                    <i data-lucide="file-text"></i> Rekap Data
+                </button>
+                <button class="nav-item" onclick="switchTab('siswa')">
+                    <i data-lucide="users"></i> Kelola Siswa
+                </button>
+            </nav>
+            <div class="user-info">
+                <i data-lucide="user-circle"></i>
+                <div>
+                    <p class="user-name">Guru Kelas</p>
+                    <span class="user-role">Administrator</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-header">
+                <h1 id="page-title">Dashboard Absensi</h1>
+                <div class="date-badge" id="current-date"></div>
+            </header>
+
+            <!-- TAB 1: Dashboard -->
+            <section id="tab-dashboard" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card total">
+                        <i data-lucide="users"></i>
+                        <div>
+                            <h3>Total Siswa</h3>
+                            <p class="stat-number" id="stat-total">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card hadir">
+                        <i data-lucide="check-circle"></i>
+                        <div>
+                            <h3>Hadir Hari Ini</h3>
+                            <p class="stat-number" id="stat-hadir">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card izin">
+                        <i data-lucide="clock"></i>
+                        <div>
+                            <h3>Izin / Sakit</h3>
+                            <p class="stat-number" id="stat-izin">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card alpa">
+                        <i data-lucide="x-circle"></i>
+                        <div>
+                            <h3>Alpa (Tanpa Ket.)</h3>
+                            <p class="stat-number" id="stat-alpa">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow mt-20">
+                    <h3>Aktivitas Terbaru Hari Ini</h3>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>NIS</th>
+                                    <th>Nama Siswa</th>
+                                    <th>Kelas</th>
+                                    <th>Status Absen</th>
+                                    <th>Waktu Waktu</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-recent-table">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: Input Absensi -->
+            <section id="tab-absensi" class="tab-content">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h3>Form Absensi Harian</h3>
+                        <div class="filter-group">
+                            <label>Filter Kelas:</label>
+                            <select id="filter-kelas-absen" onchange="renderAbsensiForm()">
+                                <option value="Semua">Semua Kelas</option>
+                                <option value="10 IPA 1">10 IPA 1</option>
+                                <option value="10 IPA 2">10 IPA 2</option>
+                                <option value="10 IPS 1">10 IPS 1</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <form id="form-absensi" onsubmit="simpanAbsensi(event)">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>NIS</th>
+                                        <th>Nama Siswa</th>
+                                        <th>Kelas</th>
+                                        <th>Status Kehadiran</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="absensi-input-table">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="form-actions mt-20">
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="save"></i> Simpan Presensi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- TAB 3: Rekap Data -->
+            <section id="tab-rekap" class="tab-content">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h3>Riwayat & Rekap Absensi</h3>
+                        <div class="filter-group">
+                            <input type="date" id="rekap-date-filter" onchange="renderRekapTable()">
+                            <button class="btn btn-outline" onclick="exportKeCSV()">
+                                <i data-lucide="download"></i> Ekspor CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>NIS</th>
+                                    <th>Nama</th>
+                                    <th>Kelas</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rekap-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: Kelola Data Siswa -->
+            <section id="tab-siswa" class="tab-content">
+                <div class="grid-2-col">
+                    <div class="card shadow">
+                        <h3>Tambah Siswa Baru</h3>
+                        <form id="form-tambah-siswa" onsubmit="tambahSiswa(event)" class="form-stack mt-15">
+                            <div class="form-group">
+                                <label for="nis">NIS (Nomor Induk Siswa)</label>
+                                <input type="number" id="nis" required placeholder="Contoh: 1001">
+                            </div>
+                            <div class="form-group">
+                                <label for="nama">Nama Lengkap</label>
+                                <input type="text" id="nama" required placeholder="Contoh: Budi Santoso">
+                            </div>
+                            <div class="form-group">
+                                <label for="kelas">Kelas</label>
+                                <select id="kelas" required>
+                                    <option value="10 IPA 1">10 IPA 1</option>
+                                    <option value="10 IPA 2">10 IPA 2</option>
+                                    <option value="10 IPS 1">10 IPS 1</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-10">
+                                <i data-lucide="user-plus"></i> Tambah Siswa
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card shadow">
+                        <h3>Daftar Siswa</h3>
+                        <div class="table-responsive mt-15">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>NIS</th>
+                                        <th>Nama</th>
+                                        <th>Kelas</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="siswa-table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
